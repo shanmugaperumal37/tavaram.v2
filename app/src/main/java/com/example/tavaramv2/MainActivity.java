@@ -1,4 +1,5 @@
 package com.example.tavaramv2;
+
 import android.content.ContentResolver;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -13,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.tavaramv2.R;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     private String readAssetFile(String fileName) {
         try {
             AssetManager assetManager = getAssets();
-            InputStream inputStream = assetManager.open("Septoria_Leaf_Spot_Tomato_en.txt");
+            InputStream inputStream = assetManager.open(fileName); // Use fileName here
             byte[] buffer = new byte[inputStream.available()];
             inputStream.read(buffer);
             return new String(buffer, StandardCharsets.UTF_8);

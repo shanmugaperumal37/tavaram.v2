@@ -1,12 +1,8 @@
-package com.example.tavaramv2;
-
-import android.content.ContentResolver;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,10 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText imagePathInput;
     private ImageView selectedImage;
     private TextView diseaseResult, diseaseNote;
-    private Button tamilButton, englishButton;
-    private Interpreter tflite;
 
-    private String selectedDisease = "";
+    private Interpreter tflite;
     private String selectedLanguage = "English"; // Default language
 
     @Override
@@ -48,19 +42,19 @@ public class MainActivity extends AppCompatActivity {
         selectedImage = findViewById(R.id.selectedImage);
         diseaseResult = findViewById(R.id.diseaseResult);
         diseaseNote = findViewById(R.id.diseaseNote);
-        tamilButton = findViewById(R.id.tamilButton);
-        englishButton = findViewById(R.id.englishButton);
+        Button tamilButton = findViewById(R.id.tamilButton);
+        Button englishButton = findViewById(R.id.englishButton);
 
         // Load TensorFlow Lite model
         try {
             tflite = new Interpreter(loadModelFile());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ModelLoadError", "Error loading model", e);
         }
 
         // Set language buttons
-        tamilButton.setOnClickListener(this::onLanguageSelect);
-        englishButton.setOnClickListener(this::onLanguageSelect);
+        tamilButton.setOnClickListener(view -> setLanguage("Tamil"));
+        englishButton.setOnClickListener(view -> setLanguage("English"));
     }
 
     // OnSubmitButtonClick - Triggered when the user submits the image path
@@ -72,13 +66,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Display the result (disease detected)
         diseaseResult.setText(detectedDisease);
-        selectedDisease = detectedDisease;
 
         // Load the selected image into the ImageView
         selectedImage.setImageURI(Uri.parse(imagePath));
 
-        // Initially, load the disease note in English
-        loadDiseaseNote();
+        // Display the note for the detected disease
+        loadDiseaseNote(detectedDisease);
     }
 
     // Recognize Disease (Call TensorFlow Lite model)
@@ -122,17 +115,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Helper method to load the image and convert it to Bitmap
     private Bitmap loadImage(String imagePath) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(Uri.parse(imagePath));
+        try (InputStream inputStream = getContentResolver().openInputStream(Uri.parse(imagePath))) {
             return BitmapFactory.decodeStream(inputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ImageLoadError", "Error loading image", e);
             return null;
         }
-    }
-
-    private ContentResolver getContentResolver() {
-        return null;
     }
 
     // Convert Bitmap to ByteBuffer for TensorFlow Lite model input
@@ -144,8 +132,7 @@ public class MainActivity extends AppCompatActivity {
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
 
         // Normalize pixel values to be between 0 and 1
-        for (int i = 0; i < intValues.length; i++) {
-            int pixelValue = intValues[i];
+        for (int pixelValue : intValues) {
             byteBuffer.putFloat(((pixelValue >> 16) & 0xFF) / 255.0f); // Red
             byteBuffer.putFloat(((pixelValue >> 8) & 0xFF) / 255.0f);  // Green
             byteBuffer.putFloat((pixelValue & 0xFF) / 255.0f);         // Blue
@@ -167,19 +154,14 @@ public class MainActivity extends AppCompatActivity {
         return maxIndex;
     }
 
-    // OnLanguageSelect - Triggered when a user selects language
-    public void onLanguageSelect(View view) {
-        if (view.getId() == R.id.tamilButton) {
-            selectedLanguage = "Tamil";
-        } else {
-            selectedLanguage = "English";
-        }
-        loadDiseaseNote(); // Reload disease note in the selected language
+    // Set language for displaying the disease note
+    private void setLanguage(String language) {
+        selectedLanguage = language;
     }
 
     // Load the relevant disease note from the assets folder based on language and disease
-    private void loadDiseaseNote() {
-        String diseaseFileName = getDiseaseFileName(selectedDisease);
+    private void loadDiseaseNote(String disease) {
+        String diseaseFileName = getDiseaseFileName(disease);
         String diseaseNoteContent = readAssetFile(diseaseFileName);
 
         if (diseaseNoteContent != null) {
@@ -192,30 +174,23 @@ public class MainActivity extends AppCompatActivity {
     // Generate the file name based on selected disease and language
     private String getDiseaseFileName(String disease) {
         String formattedDisease = disease.replaceAll("\\s+", "_").replaceAll("[()]", "");
-        return formattedDisease + "_" + selectedLanguage + ".txt"; // e.g. "Septoria_Leaf_Spot_Tomato_English.txt"
+        return formattedDisease + "_" + selectedLanguage + ".txt"; // e.g., "Septoria_Leaf_Spot_Tomato_English.txt"
     }
 
     // Read the content of a file from the assets folder
     private String readAssetFile(String fileName) {
-        try {
-            AssetManager assetManager = getAssets();
-            InputStream inputStream = assetManager.open(fileName); // Use fileName here
+        try (InputStream inputStream = getAssets().open(fileName)) {
             byte[] buffer = new byte[inputStream.available()];
             inputStream.read(buffer);
             return new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("AssetReadError", "Error reading asset file", e);
             return null;
         }
     }
 
-    private AssetManager getAssets() {
-        return null;
-    }
-
     // Load TensorFlow Lite model
     private ByteBuffer loadModelFile() throws IOException {
-        // Load model file from assets
         AssetFileDescriptor fileDescriptor = getAssets().openFd("model.tflite");
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
         FileChannel fileChannel = inputStream.getChannel();

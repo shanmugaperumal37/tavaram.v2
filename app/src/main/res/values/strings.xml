@@ -6,4 +6,6 @@
     <string name="TODO">TODO</string>
     <string name="input_text">Enter image path</string>
     <string name="Submit">Submit</string>
+    <string name="Note"> Note not available.</string>
+
 </resources>

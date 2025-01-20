@@ -8,7 +8,6 @@
     tools:context="MainActivity"
     android:background="#008000">
 
-    <!-- Top Banner -->
     <LinearLayout
         android:id="@+id/topBanner"
         android:layout_width="match_parent"
@@ -37,7 +36,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:background="#FFFFFF"
-            android:contentDescription="App logo"
+            android:contentDescription="@string/app_logo"
             android:padding="5dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/logo_round" />
@@ -59,6 +58,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:autofillHints=""
             android:hint="@string/select_image"
             android:padding="10dp"
             android:textSize="16sp"
@@ -119,6 +119,7 @@
     <!-- Language Selection Buttons -->
     <LinearLayout
         android:id="@+id/languageButtons"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/diseaseNote"
@@ -129,6 +130,7 @@
 
         <Button
             android:id="@+id/tamilButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -140,6 +142,7 @@
 
         <Button
             android:id="@+id/englishButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:background="#008000"

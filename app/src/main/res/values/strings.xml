@@ -7,5 +7,9 @@
     <string name="input_text">Enter image path</string>
     <string name="Submit">Submit</string>
     <string name="Note"> Note not available.</string>
+    <string name="onLanguageSelect"> onLanguageSelect</string>
+    <string name="app_logo">App logo</string>
+    <string name="note_not_available">Note not available.</string>
+
 
 </resources>

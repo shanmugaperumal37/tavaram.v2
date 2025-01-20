@@ -1,3 +1,5 @@
+package com.example.tavaramv2;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -8,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.res.AssetFileDescriptor;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -167,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         if (diseaseNoteContent != null) {
             diseaseNote.setText(diseaseNoteContent);
         } else {
-            diseaseNote.setText("Note not available.");
+            diseaseNote.setText(R.string.note_not_available);
         }
     }
 
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     private String readAssetFile(String fileName) {
         try (InputStream inputStream = getAssets().open(fileName)) {
             byte[] buffer = new byte[inputStream.available()];
-            inputStream.read(buffer);
+            int read = inputStream.read(buffer);
             return new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException e) {
             Log.e("AssetReadError", "Error reading asset file", e);

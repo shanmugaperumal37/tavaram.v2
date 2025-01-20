@@ -31,7 +31,7 @@
 
         <!-- Main Activity -->
         <activity
-            android:name="@string/app_name"
+            android:name="MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
